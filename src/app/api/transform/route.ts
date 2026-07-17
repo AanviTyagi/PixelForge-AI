@@ -2,97 +2,9 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-/** Calls Magic Hour image generator and returns the Cloudinary URL, or throws. */
-async function generateWithMagicHour(
-  apiKey: string,
-  prompt: string,
-  label: string
-): Promise<string> {
-  console.log(`[${label}] Trying Magic Hour API...`);
-
-  // Step 1: Create image generation job
-  const createRes = await fetch("https://api.magichour.ai/v1/ai-image-generator", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      image_count: 1,
-      model: "flux-schnell",
-      aspect_ratio: "1:1",
-      resolution: "640px",
-      style: {
-        prompt: prompt || "Transform this image with artistic style",
-        tool: "general",
-      },
-    }),
-  });
-
-  if (!createRes.ok) {
-    const errText = await createRes.text();
-    throw new Error(`Magic Hour create failed (${createRes.status}): ${errText}`);
-  }
-
-  const job = await createRes.json();
-  const jobId = job.id;
-  if (!jobId) throw new Error("Magic Hour did not return a job id");
-
-  console.log(`[${label}] Job created: ${jobId}`);
-
-  // Step 2: Poll until complete (max 120 s, every 3 s)
-  const MAX_POLLS = 40;
-  for (let i = 0; i < MAX_POLLS; i++) {
-    await new Promise((r) => setTimeout(r, 3000));
-
-    const pollRes = await fetch(
-      `https://api.magichour.ai/v1/image-projects/${jobId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          Accept: "application/json",
-        },
-      }
-    );
-
-    if (!pollRes.ok) {
-      const errText = await pollRes.text();
-      throw new Error(`Magic Hour poll failed (${pollRes.status}): ${errText}`);
-    }
-
-    const poll = await pollRes.json();
-    console.log(`[${label}] Poll ${i + 1}/${MAX_POLLS} — status: ${poll.status}`);
-
-    if (poll.status === "complete") {
-      const downloadUrl: string = poll.downloads?.[0]?.url || "";
-      if (!downloadUrl) throw new Error("Magic Hour returned no download URL");
-
-      // Step 3: Upload to Cloudinary for permanent storage
-      const { v2: cloudinary } = await import("cloudinary");
-      cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-      });
-
-      const upload = await cloudinary.uploader.upload(downloadUrl, {
-        folder: "meatech/outputs",
-        resource_type: "image",
-      });
-
-      console.log(`[${label}] Succeeded: ${upload.secure_url}`);
-      return upload.secure_url;
-    }
-
-    if (poll.status === "error" || poll.status === "canceled") {
-      throw new Error(`Magic Hour job ${poll.status}: ${JSON.stringify(poll.error)}`);
-    }
-    // queued / rendering — keep polling
-  }
-
-  throw new Error("Magic Hour job timed out");
-}
+// No long polling — this route just kicks off the job and returns immediately.
+// The frontend polls /api/history?id=<jobId> to check completion.
+// Each history poll call makes one fast Magic Hour status check (< 2 s).
 
 export async function POST(request: Request) {
   try {
@@ -106,65 +18,84 @@ export async function POST(request: Request) {
       );
     }
 
-    // Connect to MongoDB
     const { db } = await connectToDatabase();
+    const prompt: string = params.prompt || "Transform this image with artistic style";
 
+    // ── Try Magic Hour Primary Key first ──
+    const mhKey = process.env.MAGIC_HOUR_API_KEY;
+    const mhKeySecondary = process.env.MAGIC_HOUR_API_KEY_SECONDARY;
+
+    let magicHourJobId: string | null = null;
+    let usedKey: string | null = null;
+
+    for (const [key, label] of [
+      [mhKey, "primary"],
+      [mhKeySecondary, "secondary"],
+    ] as [string | undefined, string][]) {
+      if (!key || magicHourJobId) continue;
+      try {
+        const createRes = await fetch("https://api.magichour.ai/v1/ai-image-generator", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${key}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            image_count: 1,
+            model: "flux-schnell",
+            aspect_ratio: "1:1",
+            resolution: "640px",
+            style: {
+              prompt,
+              tool: "general",
+            },
+          }),
+        });
+
+        if (!createRes.ok) {
+          const errText = await createRes.text();
+          console.warn(`[Magic Hour ${label}] Create failed (${createRes.status}): ${errText}`);
+          continue;
+        }
+
+        const job = await createRes.json();
+        if (job.id) {
+          magicHourJobId = job.id;
+          usedKey = label;
+          console.log(`[Magic Hour ${label}] Job created: ${job.id}`);
+        }
+      } catch (err: any) {
+        console.warn(`[Magic Hour ${label}] Error:`, err?.message);
+      }
+    }
+
+    if (!magicHourJobId) {
+      return NextResponse.json(
+        { error: "Failed to start image generation. Both Magic Hour API keys failed." },
+        { status: 500 }
+      );
+    }
+
+    // Save job to MongoDB with status "processing" — history route will poll completion
     const newJob = {
-      status: "pending",
+      status: "processing",
       sourceVideoUrl,
       sourceVideoName,
       params,
+      magicHourJobId,
+      magicHourKeyUsed: usedKey,
       createdAt: new Date().toISOString(),
     };
 
     const insertResult = await db.collection("jobs").insertOne(newJob);
     const jobId = insertResult.insertedId.toString();
 
-    const prompt: string = params.prompt || "Transform this image with artistic style";
-    let outputImageUrl = "";
-
-    // ── TRY 1: Magic Hour — Primary Key ──
-    const mhPrimary = process.env.MAGIC_HOUR_API_KEY;
-    if (mhPrimary && !outputImageUrl) {
-      try {
-        outputImageUrl = await generateWithMagicHour(mhPrimary, prompt, "Magic Hour Primary");
-      } catch (err: any) {
-        console.warn("[Magic Hour Primary] Failed:", err?.message || err);
-      }
-    }
-
-    // ── TRY 2: Magic Hour — Secondary Key ──
-    const mhSecondary = process.env.MAGIC_HOUR_API_KEY_SECONDARY;
-    if (mhSecondary && !outputImageUrl) {
-      try {
-        outputImageUrl = await generateWithMagicHour(mhSecondary, prompt, "Magic Hour Secondary");
-      } catch (err: any) {
-        console.warn("[Magic Hour Secondary] Failed:", err?.message || err);
-      }
-    }
-
-    if (!outputImageUrl) {
-      throw new Error(
-        "Image generation failed. Both Magic Hour API keys exhausted. Please try again later."
-      );
-    }
-
-    await db.collection("jobs").updateOne(
-      { _id: new ObjectId(jobId) },
-      {
-        $set: {
-          status: "completed",
-          outputVideoUrl: outputImageUrl,
-          completedAt: new Date().toISOString(),
-          durationMs: 2000,
-        },
-      }
-    );
-
+    // Return immediately — frontend polls /api/history?id=<jobId>
     return NextResponse.json({
       jobId,
-      status: "completed",
-      message: "Image generation successfully completed.",
+      status: "processing",
+      message: "Image generation started. Poll /api/history?id=" + jobId + " for status.",
     });
   } catch (error: any) {
     console.error("Error in /api/transform:", error);

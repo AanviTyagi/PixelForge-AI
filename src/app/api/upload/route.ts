@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import path from "path";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -46,27 +44,12 @@ export async function POST(request: Request) {
 
       console.log(`Processing direct multipart upload for file: ${file.name}`);
 
-      // Handle mock fallback locally
+      // Mock fallback — Vercel has no writable filesystem, just return what we have
       if (isMock) {
-        console.warn("Cloudinary not configured. Storing direct file upload locally in /public/uploads.");
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // Ensure public/uploads directory exists
-        const publicUploadsDir = path.join(process.cwd(), "public", "uploads");
-        if (!fs.existsSync(publicUploadsDir)) {
-          fs.mkdirSync(publicUploadsDir, { recursive: true });
-        }
-
-        const safeFilename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-        const filePath = path.join(publicUploadsDir, safeFilename);
-        fs.writeFileSync(filePath, buffer);
-
-        // Return a local URL
-        const localUrl = `/uploads/${safeFilename}`;
+        console.warn("Cloudinary not configured. Returning placeholder URL.");
         return NextResponse.json({
-          cloudinaryUrl: localUrl,
-          publicId: `local_${safeFilename}`,
+          cloudinaryUrl: "",
+          publicId: "mock_local_upload",
         });
       }
 
