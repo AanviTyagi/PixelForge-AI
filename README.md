@@ -1,6 +1,6 @@
-# MeaTech AI — Video Transformation Studio
+# MeaTech AI — Image Transformation Studio
 
-A production-ready AI Video-to-Video Transformation application built with **Next.js 15**, **TypeScript**, and **Tailwind CSS**. Leverages the **FAL AI Hunyuan-Video model** to apply advanced AI transformations to uploaded videos.
+A production-ready AI Image-to-Image Transformation application built with **Next.js 15**, **TypeScript**, and **Tailwind CSS**. Leverages the **Magic Hour AI flux-schnell model** to apply advanced AI style transformations to uploaded images.
 
 ---
 
@@ -19,8 +19,8 @@ A production-ready AI Video-to-Video Transformation application built with **Nex
 | Styling | Tailwind CSS v4 + Custom CSS Variables |
 | File Upload | Uploadcare |
 | Cloud Storage | Cloudinary |
-| AI Model | FAL AI — Hunyuan-Video |
-| Database | MongoDB (via Mongoose) |
+| AI Model | Magic Hour AI — flux-schnell |
+| Database | MongoDB (via Native Node Driver) |
 | Deployment | Vercel |
 
 ---
@@ -29,7 +29,7 @@ A production-ready AI Video-to-Video Transformation application built with **Nex
 
 ### Prerequisites
 - Node.js 18+
-- npm or yarn
+- npm, yarn, or pnpm
 
 ### 1. Clone the repository
 
@@ -49,14 +49,19 @@ npm install
 Copy the example file and fill in your credentials:
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 ```
 
-Then edit `.env.local`:
+Then edit `.env`:
 
 ```env
-# ── FAL AI ────────────────────────────────────
-FAL_KEY=your_fal_api_key_here
+# ── Magic Hour AI ─────────────────────────────
+MAGIC_HOUR_API_KEY=your_primary_key_here
+MAGIC_HOUR_API_KEY_SECONDARY=your_secondary_key_here
+MAGIC_HOUR_API_KEY_TERTIARY=your_tertiary_key_here
+
+# ── Replicate API Key ──────────────────────────
+REPLICATE_API_TOKEN=your_replicate_token_here
 
 # ── Cloudinary ────────────────────────────────
 CLOUDINARY_CLOUD_NAME=your_cloud_name
@@ -66,9 +71,12 @@ CLOUDINARY_API_SECRET=your_api_secret
 # ── MongoDB ───────────────────────────────────
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/meatech
 
-# ── App URL (for webhook callback) ────────────
+# ── Uploadcare ────────────────────────────────
+NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY=your_public_key
+UPLOADCARE_SECRET_KEY=your_secret_key
+
+# ── App URL ───────────────────────────────────
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-# In production, this must be your Vercel URL (must be HTTPS)
 ```
 
 ### 4. Run the development server
@@ -85,50 +93,52 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 | Variable | Description | Required |
 |---|---|---|
-| `FAL_KEY` | FAL AI API key from [fal.ai](https://fal.ai) | ✅ |
+| `MAGIC_HOUR_API_KEY` | Primary API key from [magichour.ai](https://magichour.ai) | ✅ |
+| `MAGIC_HOUR_API_KEY_SECONDARY` | Secondary API key for load pooling fallback | ❌ |
+| `MAGIC_HOUR_API_KEY_TERTIARY` | Tertiary API key for load pooling fallback | ❌ |
+| `REPLICATE_API_TOKEN` | Replicate token for fallback integrations | ❌ |
 | `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name | ✅ |
 | `CLOUDINARY_API_KEY` | Cloudinary API key | ✅ |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret | ✅ |
 | `MONGODB_URI` | MongoDB connection string | ✅ |
-| `NEXT_PUBLIC_APP_URL` | Full app URL for webhook construction | ✅ |
+| `NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY` | Client-side public key for Uploadcare | ✅ |
+| `UPLOADCARE_SECRET_KEY` | Server-side secret key for Uploadcare | ✅ |
+| `NEXT_PUBLIC_APP_URL` | Full app URL for webhook / API callbacks | ✅ |
 
 ---
 
 ## 🔄 Async Webhook Architecture
 
-The transformation pipeline is **fully asynchronous** to avoid HTTP timeouts for long-running AI jobs.
+The transformation pipeline is **fully asynchronous** to avoid HTTP timeouts for long-running AI generation tasks.
 
 ```
 User Browser
     │
     ▼
-POST /api/upload          ← Upload source video → Cloudinary
+POST /api/upload          ← Upload source image → Cloudinary
     │
     ▼
-POST /api/transform       ← Trigger FAL AI with:
-    │                          • sourceVideoUrl (Cloudinary)
+POST /api/transform       ← Trigger Magic Hour AI with:
+    │                          • sourceImageUrl (Cloudinary)
     │                          • params (prompt, strength, CFG, etc.)
-    │                          • webhookUrl = APP_URL/api/webhook
     │
-    │  FAL AI processes async (2–5 min)
-    │
-    ▼
-POST /api/webhook          ← FAL AI calls this when done
-    │                          • Receives transformed video URL
-    │                          • Uploads output to Cloudinary
-    │                          • Saves full metadata to MongoDB
+    │  Magic Hour processes async
     │
     ▼
-GET /api/history           ← Frontend polls or user navigates to
-                               History page to see result
+GET /api/history?id=      ← Frontend polls to check completion
+    │                          • Checks Magic Hour status API
+    │                          • Uploads generated output to Cloudinary
+    │                          • Saves finalized metadata to MongoDB
+    │
+    ▼
+GET /api/history           ← User views History page to see full results
 ```
 
 ### Key Design Decisions
 
-1. **Non-blocking**: `/api/transform` returns immediately with a `jobId`. The actual processing happens in the background.
-2. **Webhook signature validation**: FAL sends a signature header (`x-fal-signature`) — the webhook handler validates this HMAC to reject unauthorized requests.
-3. **Idempotency**: The webhook handler checks if a job has already been processed before saving to MongoDB to handle duplicate deliveries.
-4. **Cloudinary for output**: The transformed video URL from FAL AI is re-uploaded to Cloudinary for long-term reliable storage.
+1. **Non-blocking**: `/api/transform` returns immediately with a database `jobId`. The actual generation happens asynchronously on Magic Hour servers.
+2. **Short Polling**: The client queries `/api/history?id=<jobId>`. When the server detects that Magic Hour status is `complete`, it transfers the output to Cloudinary and registers the job as completed in MongoDB.
+3. **Cloudinary Redundancy**: The generated output from Magic Hour is transferred to Cloudinary for permanent, reliable asset hosting.
 
 ---
 
@@ -136,10 +146,10 @@ GET /api/history           ← Frontend polls or user navigates to
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/upload` | Upload source video from Uploadcare → Cloudinary |
-| `POST` | `/api/transform` | Trigger FAL AI with source URL + params + webhook URL |
-| `POST` | `/api/webhook` | Receive FAL AI result, upload output to Cloudinary, save to MongoDB |
-| `GET` | `/api/history` | Fetch paginated transformation history from MongoDB |
+| `POST` | `/api/upload` | Upload source image from Uploadcare → Cloudinary |
+| `POST` | `/api/transform` | Trigger Magic Hour image generation with parameters |
+| `GET` | `/api/history?id=<id>`| Poll current state of a specific transformation job |
+| `GET` | `/api/history` | Fetch paginated transformation history |
 
 ---
 
@@ -148,17 +158,20 @@ GET /api/history           ← Frontend polls or user navigates to
 ```
 src/
 ├── app/
-│   ├── layout.tsx          # Root layout (Navbar + Footer)
-│   ├── page.tsx            # Home page (upload + configure + generate)
-│   ├── globals.css         # Design system tokens + utilities
-│   └── history/
-│       └── page.tsx        # History page
+│   ├── layout.tsx          # Root layout (TopBar + Font configuration)
+│   ├── page.tsx            # Home page (upload + configure + loading + result)
+│   ├── globals.css         # Design system tokens + global CSS variables
+│   ├── history/
+│   │   └── page.tsx        # History page
+│   └── api/
+│       ├── history/        # History fetch & Magic Hour polling route
+│       ├── transform/      # Trigger Magic Hour generation route
+│       └── upload/         # Client CDN to Cloudinary upload route
 ├── components/
-│   ├── layout/
-│   │   ├── Navbar.tsx
-│   │   └── Footer.tsx
+│   ├── ui/
+│   │   └── TopBar.tsx      # Sticky TopBar navigation
 │   ├── upload/
-│   │   └── VideoUploader.tsx
+│   │   └── ImageUploader.tsx
 │   ├── transform/
 │   │   └── ParametersForm.tsx
 │   ├── result/
@@ -167,9 +180,11 @@ src/
 │   └── history/
 │       ├── HistoryCard.tsx
 │       └── HistoryGrid.tsx
+├── hooks/
+│   └── useImageTransform.ts # Custom React hook containing main application logic
 ├── lib/
-│   ├── mock-data.ts        # Demo/mock data
-│   └── utils.ts            # Shared utilities
+│   ├── mock-data.ts        # Initial/default configuration parameters
+│   └── utils.ts            # Client helpers & image download scripts
 └── types/
     └── index.ts            # TypeScript interfaces
 ```
@@ -178,16 +193,15 @@ src/
 
 ## 🚢 Deploying to Vercel
 
-1. Push to GitHub
-2. Import repo in [Vercel](https://vercel.com)
-3. Add all environment variables in the Vercel dashboard
-4. Set `NEXT_PUBLIC_APP_URL` to your Vercel production URL (e.g. `https://meatech.vercel.app`)
-5. Deploy — Vercel auto-detects Next.js
-
-> **Important**: The webhook URL must be publicly accessible. Use [ngrok](https://ngrok.com) for local webhook testing.
+1. Push your code to GitHub.
+2. Import the repository in [Vercel](https://vercel.com).
+3. Populate all environment variables from the Vercel dashboard.
+4. Set `NEXT_PUBLIC_APP_URL` to your Vercel production URL (e.g. `https://meatech.vercel.app`).
+5. Deploy — Vercel automatically detects Next.js configurations.
 
 ---
 
 ## 📄 License
 
 MIT — Built for MeaTech Assignment
+
