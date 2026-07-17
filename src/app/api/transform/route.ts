@@ -21,9 +21,10 @@ export async function POST(request: Request) {
     const { db } = await connectToDatabase();
     const prompt: string = params.prompt || "Transform this image with artistic style";
 
-    // ── Try Magic Hour Primary Key first ──
+    // ── Try Magic Hour Keys (Primary, Secondary, Tertiary) ──
     const mhKey = process.env.MAGIC_HOUR_API_KEY;
     const mhKeySecondary = process.env.MAGIC_HOUR_API_KEY_SECONDARY;
+    const mhKeyTertiary = process.env.MAGIC_HOUR_API_KEY_TERTIARY;
 
     let magicHourJobId: string | null = null;
     let usedKey: string | null = null;
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
     for (const [key, label] of [
       [mhKey, "primary"],
       [mhKeySecondary, "secondary"],
+      [mhKeyTertiary, "tertiary"],
     ] as [string | undefined, string][]) {
       if (!key || magicHourJobId) continue;
       try {
@@ -72,7 +74,7 @@ export async function POST(request: Request) {
 
     if (!magicHourJobId) {
       return NextResponse.json(
-        { error: "Failed to start image generation. Both Magic Hour API keys failed." },
+        { error: "Failed to start image generation. All Magic Hour API keys failed." },
         { status: 500 }
       );
     }

@@ -8,10 +8,12 @@ async function checkAndFinalizeMagicHourJob(db: any, job: any, jobId: string) {
   if (!magicHourJobId) return job;
 
   // Pick the right key
-  const key =
-    magicHourKeyUsed === "secondary"
-      ? process.env.MAGIC_HOUR_API_KEY_SECONDARY
-      : process.env.MAGIC_HOUR_API_KEY;
+  let key = process.env.MAGIC_HOUR_API_KEY;
+  if (magicHourKeyUsed === "secondary") {
+    key = process.env.MAGIC_HOUR_API_KEY_SECONDARY;
+  } else if (magicHourKeyUsed === "tertiary") {
+    key = process.env.MAGIC_HOUR_API_KEY_TERTIARY;
+  }
 
   if (!key) return job;
 
