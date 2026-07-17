@@ -201,7 +201,7 @@ src/
 
 ---
 
-## 📄 License
 
-MIT — Built for MeaTech Assignment
+
+Built for MeaTech Assignment
 
