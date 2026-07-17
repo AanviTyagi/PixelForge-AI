@@ -1,23 +1,23 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { UploadCloud, Film, X, CheckCircle, AlertCircle } from "lucide-react";
-import { validateVideoFile, formatFileSize, ACCEPTED_VIDEO_TYPES } from "@/lib/utils";
+import { UploadCloud, Image as ImageIcon, X, CheckCircle, AlertCircle } from "lucide-react";
+import { validateImageFile, formatFileSize, ACCEPTED_IMAGE_TYPES } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-interface VideoUploaderProps {
-  onVideoSelected: (file: File, previewUrl: string) => void;
+interface ImageUploaderProps {
+  onImageSelected: (file: File, previewUrl: string) => void;
   selectedFile: File | null;
   previewUrl: string | null;
   onClear: () => void;
 }
 
-export function VideoUploader({
-  onVideoSelected,
+export function ImageUploader({
+  onImageSelected,
   selectedFile,
   previewUrl,
   onClear,
-}: VideoUploaderProps) {
+}: ImageUploaderProps) {
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,15 +25,15 @@ export function VideoUploader({
   const handleFile = useCallback(
     (file: File) => {
       setError(null);
-      const validationError = validateVideoFile(file);
+      const validationError = validateImageFile(file);
       if (validationError) {
         setError(validationError);
         return;
       }
       const url = URL.createObjectURL(file);
-      onVideoSelected(file, url);
+      onImageSelected(file, url);
     },
-    [onVideoSelected]
+    [onImageSelected]
   );
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -83,10 +83,10 @@ export function VideoUploader({
           <input
             ref={inputRef}
             type="file"
-            accept={ACCEPTED_VIDEO_TYPES.join(",")}
+            accept={ACCEPTED_IMAGE_TYPES.join(",")}
             onChange={handleInputChange}
             style={{ display: "none" }}
-            id="video-file-input"
+            id="image-file-input"
           />
 
           <div
@@ -244,7 +244,7 @@ export function VideoUploader({
                 flexShrink: 0,
               }}
             >
-              <Film size={18} style={{ color: "var(--color-accent-secondary)" }} />
+              <ImageIcon size={18} style={{ color: "var(--color-accent-secondary)" }} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p

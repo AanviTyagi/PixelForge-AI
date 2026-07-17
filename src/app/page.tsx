@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { UploadCloud, Film, X, CheckCircle, Loader2, AlertCircle, Zap } from "lucide-react";
+import { UploadCloud, X, CheckCircle, Loader2, AlertCircle, Zap } from "lucide-react";
 import { TopBar } from "@/components/ui/TopBar";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ParametersForm } from "@/components/transform/ParametersForm";
 import { LoadingState } from "@/components/result/LoadingState";
 import { ResultPreview } from "@/components/result/ResultPreview";
-import { useVideoTransform } from "@/hooks/useVideoTransform";
+import { useImageTransform } from "@/hooks/useImageTransform";
 import type { GenerationProgress } from "@/types";
 
 // Helper size formatter
@@ -28,10 +28,10 @@ const mapProcToProgress = (procStep: number, procPct: number): GenerationProgres
 
   if (procStep === 0 || procStep === 1) {
     stepKey = "uploading";
-    message = "Initializing & uploading video...";
+    message = "Initializing & uploading image...";
   } else if (procStep === 2) {
     stepKey = "processing";
-    message = "Processing video frames...";
+    message = "Processing image...";
   } else if (procStep === 3) {
     stepKey = "processing";
     message = "Rendering output...";
@@ -66,7 +66,7 @@ export default function HomePage() {
     processFile,
     handleGenerate,
     handleReset,
-  } = useVideoTransform();
+  } = useImageTransform();
 
   const [historyOpen, setHistoryOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -283,7 +283,7 @@ export default function HomePage() {
           {/* Trust row */}
           <div style={{ display: "flex", gap: "1.5rem", marginTop: "2.25rem", opacity: 0.45 }}>
             {[
-              { icon: "⚡", text: "Hunyuan-Video AI" },
+              { icon: "⚡", text: "AI Image Editing" },
               { icon: "☁", text: "Cloud processing" },
               { icon: "🔒", text: "Secure upload" },
             ].map(b => (

@@ -149,7 +149,7 @@ export function ParametersForm({ params, onChange }: ParametersFormProps) {
         max={1}
         step={0.05}
         onChange={(v) => update("strength", v)}
-        tooltip="Controls how much the original video changes. Higher = more dramatic transformation."
+        tooltip="Controls how much the original image changes. Higher = more dramatic transformation."
         displayValue={params.strength.toFixed(2)}
       />
 

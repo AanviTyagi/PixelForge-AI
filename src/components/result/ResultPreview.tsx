@@ -6,16 +6,13 @@ import {
   Copy,
   Check,
   ExternalLink,
-  Clock,
   Zap,
-  Monitor,
-  Film,
   RotateCcw,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import type { TransformationJob } from "@/types";
-import { formatDate, formatDuration, downloadVideo } from "@/lib/utils";
+import { formatDate, formatDuration, downloadImage } from "@/lib/utils";
 
 interface ResultPreviewProps {
   job: TransformationJob;
@@ -145,7 +142,7 @@ export function ResultPreview({ job, onTransformAnother }: ResultPreviewProps) {
         >
           <button
             type="button"
-            onClick={() => downloadVideo(job.outputVideoUrl, `transformed-${job.id}.mp4`)}
+            onClick={() => downloadImage(job.outputVideoUrl, `transformed-${job.id}.png`)}
             className="btn-primary"
             style={{ flex: "1", minWidth: "140px", border: "none", cursor: "pointer" }}
             id="download-result-btn"
@@ -278,7 +275,7 @@ export function ResultPreview({ job, onTransformAnother }: ResultPreviewProps) {
         style={{ width: "100%" }}
       >
         <RotateCcw size={16} />
-        Transform Another Video
+        Transform Another Image
       </button>
     </div>
   );

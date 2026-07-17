@@ -11,15 +11,15 @@ interface LoadingStateProps {
 const STEPS: { key: GenerationProgress["step"]; label: string; icon: React.ReactNode; description: string }[] = [
   {
     key: "uploading",
-    label: "Uploading Video",
+    label: "Uploading Image",
     icon: <Upload size={18} />,
-    description: "Sending your video to cloud storage…",
+    description: "Sending your image to cloud storage…",
   },
   {
     key: "processing",
     label: "AI Processing",
     icon: <Cpu size={18} />,
-    description: "Hunyuan-Video model is transforming your video…",
+    description: "AI model is transforming your image…",
   },
   {
     key: "finalizing",
@@ -31,7 +31,7 @@ const STEPS: { key: GenerationProgress["step"]; label: string; icon: React.React
     key: "complete",
     label: "Complete!",
     icon: <CheckCircle2 size={18} />,
-    description: "Your video has been transformed.",
+    description: "Your image has been transformed.",
   },
 ];
 

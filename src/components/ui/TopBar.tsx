@@ -35,9 +35,9 @@ export function TopBar({ onHistoryOpen, historyCount = 0, backHref }: TopBarProp
         style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none" }}
       >
         <Image
-          src="/logo.svg"
+          src="/logo.png"
           alt="MEAtec logo"
-          width={108}
+          width={32}
           height={32}
           priority
           style={{ height: "32px", width: "auto" }}

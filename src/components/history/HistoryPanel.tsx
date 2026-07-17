@@ -1,12 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useMemo } from "react";
 import {
-  X, Search, Film, CheckCircle, Loader2, AlertCircle, Clock, Download,
+  X, Search, Image as ImageIcon, CheckCircle, Loader2, AlertCircle, Clock, Download,
 } from "lucide-react";
-import { MOCK_HISTORY } from "@/lib/mock-data";
 import type { TransformationJob, JobStatus } from "@/types";
 
-import { downloadVideo } from "@/lib/utils";
+import { downloadImage } from "@/lib/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 type FilterKey = "all" | JobStatus;
@@ -40,7 +39,7 @@ function fmtMs(ms?: number) {
 }
 
 // ── Single job card ───────────────────────────────────────────────────────────
-function JobCard({ job }: { job: TransformationJob }) {
+const JobCard = memo(function JobCard({ job }: { job: TransformationJob }) {
   const isComplete = job.status === "completed";
   const isRunning  = job.status === "processing";
   const dur = fmtMs(job.durationMs);
@@ -70,7 +69,7 @@ function JobCard({ job }: { job: TransformationJob }) {
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center", gap: "0.2rem",
         }}>
-          <Film size={14} color="rgba(2, 195, 154, 0.45)" />
+          <ImageIcon size={14} color="rgba(2, 195, 154, 0.45)" />
           <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "rgba(240,243,189,0.3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             Source
           </span>
@@ -169,7 +168,7 @@ function JobCard({ job }: { job: TransformationJob }) {
             {isComplete && job.outputVideoUrl && (
               <button
                 type="button"
-                onClick={() => downloadVideo(job.outputVideoUrl, `transformed-${job.id}.mp4`)}
+                onClick={() => downloadImage(job.outputVideoUrl, `transformed-${job.id}.png`)}
                 style={{
                   display: "flex", alignItems: "center", gap: "0.2rem",
                   fontSize: "0.68rem", fontWeight: 600,
@@ -204,7 +203,7 @@ function JobCard({ job }: { job: TransformationJob }) {
       </div>
     </article>
   );
-}
+});
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
 interface HistoryPanelProps {
@@ -222,6 +221,7 @@ const TABS: Array<{ key: FilterKey; label: string }> = [
 
 export function HistoryPanel({ open, onClose }: HistoryPanelProps) {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [jobs, setJobs] = useState<TransformationJob[]>([]);
   const [loading, setLoading] = useState(false);
@@ -247,15 +247,24 @@ export function HistoryPanel({ open, onClose }: HistoryPanelProps) {
     }
   }, [open]);
 
-  const filtered = jobs.filter(job => {
-    const matchStatus = filter === "all" || job.status === filter;
-    const q = search.toLowerCase();
-    const matchSearch =
-      !q ||
-      job.params.prompt.toLowerCase().includes(q) ||
-      job.sourceVideoName.toLowerCase().includes(q);
-    return matchStatus && matchSearch;
-  });
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  const filtered = useMemo(() => {
+    const q = debouncedSearch.toLowerCase();
+    return jobs.filter(job => {
+      const matchStatus = filter === "all" || job.status === filter;
+      const matchSearch =
+        !q ||
+        job.params.prompt.toLowerCase().includes(q) ||
+        job.sourceVideoName.toLowerCase().includes(q);
+      return matchStatus && matchSearch;
+    });
+  }, [jobs, filter, debouncedSearch]);
 
   return (
     <>
@@ -394,7 +403,7 @@ export function HistoryPanel({ open, onClose }: HistoryPanelProps) {
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
-              <Film size={28} style={{ color: "var(--color-text-muted)", margin: "0 auto 0.75rem", opacity: 0.35 }} />
+              <ImageIcon size={28} style={{ color: "var(--color-text-muted)", margin: "0 auto 0.75rem", opacity: 0.35 }} />
               <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", margin: 0 }}>
                 {search ? "No results" : "No transformations yet"}
               </p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, History } from "lucide-react";
 import type { TransformationJob, JobStatus } from "@/types";
 import { HistoryCard } from "./HistoryCard";
@@ -19,16 +19,27 @@ const STATUS_FILTERS: { value: JobStatus | "all"; label: string }[] = [
 
 export function HistoryGrid({ jobs }: HistoryGridProps) {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
 
-  const filtered = jobs.filter((job) => {
-    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
-    const matchesSearch =
-      !search ||
-      job.params.prompt.toLowerCase().includes(search.toLowerCase()) ||
-      job.sourceVideoName.toLowerCase().includes(search.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  const filtered = useMemo(() => {
+    const searchLower = debouncedSearch.toLowerCase();
+    return jobs.filter((job) => {
+      const matchesStatus = statusFilter === "all" || job.status === statusFilter;
+      const matchesSearch =
+        !debouncedSearch ||
+        job.params.prompt.toLowerCase().includes(searchLower) ||
+        job.sourceVideoName.toLowerCase().includes(searchLower);
+      return matchesStatus && matchesSearch;
+    });
+  }, [jobs, statusFilter, debouncedSearch]);
 
   /* Staggered scroll-reveal for grid cards */
   useEffect(() => {

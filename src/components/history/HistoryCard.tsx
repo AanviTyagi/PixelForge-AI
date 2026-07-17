@@ -1,22 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import React, { useState, memo } from "react";
 import {
-  Play,
-  Clock,
-  Zap,
   AlertCircle,
   Loader2,
   CheckCircle,
   Timer,
-  Film,
-  ChevronDown,
-  ChevronUp,
+  Image as ImageIcon,
   ExternalLink,
   Download,
 } from "lucide-react";
 import type { TransformationJob, JobStatus } from "@/types";
-import { formatDate, formatDuration, downloadVideo } from "@/lib/utils";
+import { formatDate, formatDuration, downloadImage } from "@/lib/utils";
 
 interface HistoryCardProps {
   job: TransformationJob;
@@ -48,24 +43,17 @@ const STATUS_CONFIG: Record<
   },
 };
 
-export function HistoryCard({ job }: HistoryCardProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [videoHovered, setVideoHovered] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+export const HistoryCard = memo(function HistoryCard({ job }: HistoryCardProps) {
+  const [imageHovered, setImageHovered] = useState(false);
 
   const status = STATUS_CONFIG[job.status];
 
   const handleMouseEnter = () => {
-    setVideoHovered(true);
-    videoRef.current?.play();
+    setImageHovered(true);
   };
 
   const handleMouseLeave = () => {
-    setVideoHovered(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
+    setImageHovered(false);
   };
 
   const paramChips = [
@@ -74,6 +62,7 @@ export function HistoryCard({ job }: HistoryCardProps) {
     { label: "Steps", value: job.params.numInferenceSteps },
     { label: "Resolution", value: job.params.resolution },
   ];
+
 
   return (
     <div
@@ -84,7 +73,7 @@ export function HistoryCard({ job }: HistoryCardProps) {
         flexDirection: "column",
       }}
     >
-      {/* Video thumbnail area */}
+      {/* Image thumbnail area */}
       <div
         style={{
           position: "relative",
@@ -106,7 +95,7 @@ export function HistoryCard({ job }: HistoryCardProps) {
               objectFit: "cover",
               borderRadius: 0,
               transition: "transform var(--transition-slow)",
-              transform: videoHovered ? "scale(1.05)" : "scale(1)",
+              transform: imageHovered ? "scale(1.05)" : "scale(1)",
             }}
           />
         ) : (
@@ -124,7 +113,7 @@ export function HistoryCard({ job }: HistoryCardProps) {
               gap: "0.5rem",
             }}
           >
-            <Film size={32} style={{ color: "var(--color-text-muted)" }} />
+            <ImageIcon size={32} style={{ color: "var(--color-text-muted)" }} />
             <span style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>
               {job.status === "processing"
                 ? "Processing…"
@@ -167,7 +156,7 @@ export function HistoryCard({ job }: HistoryCardProps) {
       <div style={{ padding: "1rem", flex: 1, display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         {/* File name */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
-          <Film size={15} style={{ color: "var(--color-text-muted)", marginTop: "2px", flexShrink: 0 }} />
+          <ImageIcon size={15} style={{ color: "var(--color-text-muted)", marginTop: "2px", flexShrink: 0 }} />
           <div>
             <p
               style={{
@@ -251,7 +240,7 @@ export function HistoryCard({ job }: HistoryCardProps) {
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "auto" }}>
             <button
               type="button"
-              onClick={() => downloadVideo(job.outputVideoUrl, `transformed-${job.id}.mp4`)}
+              onClick={() => downloadImage(job.outputVideoUrl, `transformed-${job.id}.png`)}
               className="btn-primary"
               style={{ flex: 1, fontSize: "0.8rem", padding: "0.5rem 0.75rem", border: "none", cursor: "pointer" }}
             >
@@ -272,4 +261,4 @@ export function HistoryCard({ job }: HistoryCardProps) {
       </div>
     </div>
   );
-}
+});

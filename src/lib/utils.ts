@@ -28,14 +28,15 @@ export function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export const ACCEPTED_VIDEO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const ACCEPTED_VIDEO_TYPES = ACCEPTED_IMAGE_TYPES; // alias for compatibility
 export const MAX_FILE_SIZE_MB = 10;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-export function validateVideoFile(file: File): string | null {
+export function validateImageFile(file: File): string | null {
   const ext = file.name.split(".").pop()?.toLowerCase();
   const validExtensions = ["png", "jpg", "jpeg", "webp"];
-  const isValid = ACCEPTED_VIDEO_TYPES.includes(file.type) || (ext && validExtensions.includes(ext));
+  const isValid = ACCEPTED_IMAGE_TYPES.includes(file.type) || (ext && validExtensions.includes(ext));
 
   if (!isValid) {
     return `Unsupported format. Please upload PNG, JPG, JPEG, or WebP.`;
@@ -45,8 +46,9 @@ export function validateVideoFile(file: File): string | null {
   }
   return null;
 }
+export const validateVideoFile = validateImageFile; // alias for compatibility
 
-export async function downloadVideo(url: string | undefined, filename: string = "transformed-video.mp4") {
+export async function downloadImage(url: string | undefined, filename: string = "transformed-image.png") {
   if (!url) return;
 
   // 1. If it's a Cloudinary URL, use 'fl_attachment' transformation to force download
@@ -81,3 +83,4 @@ export async function downloadVideo(url: string | undefined, filename: string = 
     window.open(url, "_blank");
   }
 }
+export const downloadVideo = downloadImage; // alias for compatibility

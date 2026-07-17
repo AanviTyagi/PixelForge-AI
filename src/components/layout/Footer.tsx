@@ -53,55 +53,11 @@ export function Footer() {
             (e.currentTarget as HTMLElement).style.filter = "none";
           }}
         >
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', 'Raleway', sans-serif",
-              fontWeight: 900,
-              fontSize: "1.5rem",
-              color: "var(--color-logo-teal)",
-              letterSpacing: "-0.04em",
-              lineHeight: 1,
-            }}
-          >
-            M
-          </span>
-          <span
-            style={{
-              display: "inline-block",
-              width: "4px",
-              height: "4px",
-              borderRadius: "50%",
-              background: "var(--color-logo-teal)",
-              flexShrink: 0,
-              alignSelf: "center",
-              marginBottom: "2px",
-            }}
+          <img
+            src="/logo.png"
+            alt="MEAtec logo"
+            style={{ height: "32px", width: "auto" }}
           />
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', 'Raleway', sans-serif",
-              fontWeight: 900,
-              fontSize: "1.5rem",
-              color: "var(--color-logo-teal)",
-              letterSpacing: "-0.04em",
-              lineHeight: 1,
-            }}
-          >
-            A
-          </span>
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', 'Raleway', sans-serif",
-              fontWeight: 700,
-              fontSize: "1.3rem",
-              color: "var(--color-text-primary)",
-              letterSpacing: "-0.02em",
-              marginLeft: "2px",
-              opacity: 0.9,
-            }}
-          >
-            tec
-          </span>
         </div>
 
         <p
@@ -114,7 +70,7 @@ export function Footer() {
         >
           Powered by{" "}
           <a
-            href="https://fal.ai"
+            href="https://magichour.ai"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -131,7 +87,7 @@ export function Footer() {
               (e.currentTarget as HTMLElement).style.borderBottomColor = "transparent";
             }}
           >
-            FAL AI Hunyuan-Video
+            Magic Hour AI
           </a>{" "}
           · Storage via{" "}
           <a

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { History, Menu, X, Video } from "lucide-react";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/", label: "Transform", icon: <Video size={15} /> },
@@ -12,78 +13,17 @@ const navLinks = [
 
 /** MeaTech wordmark logo */
 function MeaTechLogo({ size = "md" }: { size?: "sm" | "md" }) {
-  const teal = "var(--color-logo-teal)";
-  const light = "var(--color-text-primary)";
   const scale = size === "sm" ? 0.75 : 1;
   const height = 32 * scale;
-  const fontSize = 26 * scale;
-  const dotSize = 5 * scale;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        height: `${height}px`,
-        userSelect: "none",
-        transition: "filter var(--transition-base)",
-      }}
-    >
-      {/* MEA in teal */}
-      <span
-        style={{
-          fontFamily: "'Space Grotesk', 'Raleway', sans-serif",
-          fontWeight: 900,
-          fontSize: `${fontSize}px`,
-          color: teal,
-          letterSpacing: "-0.04em",
-          lineHeight: 1,
-        }}
-      >
-        M
-      </span>
-      {/* Dot between M and E */}
-      <span
-        style={{
-          display: "inline-block",
-          width: `${dotSize}px`,
-          height: `${dotSize}px`,
-          borderRadius: "50%",
-          background: teal,
-          margin: `0 ${1.5 * scale}px`,
-          flexShrink: 0,
-          alignSelf: "center",
-          marginBottom: `${2 * scale}px`,
-        }}
-      />
-      <span
-        style={{
-          fontFamily: "'Space Grotesk', 'Raleway', sans-serif",
-          fontWeight: 900,
-          fontSize: `${fontSize}px`,
-          color: teal,
-          letterSpacing: "-0.04em",
-          lineHeight: 1,
-        }}
-      >
-        A
-      </span>
-      {/* tec in light */}
-      <span
-        style={{
-          fontFamily: "'Space Grotesk', 'Raleway', sans-serif",
-          fontWeight: 700,
-          fontSize: `${fontSize * 0.88}px`,
-          color: light,
-          letterSpacing: "-0.02em",
-          lineHeight: 1,
-          marginLeft: `${2 * scale}px`,
-          opacity: 0.9,
-        }}
-      >
-        tec
-      </span>
-    </div>
+    <Image
+      src="/logo.png"
+      alt="MEAtec logo"
+      width={height}
+      height={height}
+      style={{ height: `${height}px`, width: "auto" }}
+    />
   );
 }
 

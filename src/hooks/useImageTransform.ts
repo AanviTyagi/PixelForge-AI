@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import type { TransformationParams, TransformationJob, AppStep, LocalFile } from "@/types";
 import { DEFAULT_PARAMS } from "@/lib/mock-data";
-import { validateVideoFile } from "@/lib/utils";
+import { validateImageFile } from "@/lib/utils";
 
-export function useVideoTransform() {
+export function useImageTransform() {
   const [step, setStep] = useState<AppStep>("upload");
   const [file, setFile] = useState<LocalFile | null>(null);
   const [params, setParams] = useState<TransformationParams>({ ...DEFAULT_PARAMS });
@@ -38,7 +38,7 @@ export function useVideoTransform() {
   }, [fetchHistory]);
 
   const processFile = useCallback(async (f: File) => {
-    const err = validateVideoFile(f);
+    const err = validateImageFile(f);
     if (err) {
       setUploadError(err);
       return;
@@ -131,7 +131,7 @@ export function useVideoTransform() {
       setStep("configure");
     } catch (err: any) {
       console.error("All upload attempts failed:", err);
-      setUploadError(err?.message || "Failed to upload video. Please try again.");
+      setUploadError(err?.message || "Failed to upload image. Please try again.");
       setUploading(false);
     }
   }, []);
@@ -186,7 +186,7 @@ export function useVideoTransform() {
             }, 500);
           } else if (job.status === "failed") {
             clearInterval(pollInterval);
-            throw new Error(job.errorMessage || "Replicate video transformation failed");
+            throw new Error(job.errorMessage || "Replicate image transformation failed");
           } else {
             progressVal = Math.min(progressVal + Math.random() * 4 + 1, 95);
             setProcPct(Math.round(progressVal));

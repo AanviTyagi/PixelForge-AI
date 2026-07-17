@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MeaTech AI — Video Transformation Studio",
+  title: "MeaTech AI — Image Transformation Studio",
   description:
-    "Transform any video with AI. Upload your source video, configure the style with Hunyuan-Video parameters, and generate stunning AI-transformed results in minutes.",
-  keywords: ["AI video", "video transformation", "Hunyuan-Video", "FAL AI", "video generation"],
+    "Transform any image with AI. Upload your source image, configure the style with style transfer parameters, and generate stunning AI-transformed results in seconds.",
+  keywords: ["AI image", "image transformation", "image generation", "style transfer", "MeaTech AI"],
   authors: [{ name: "MeaTech" }],
   openGraph: {
-    title: "MeaTech AI — Video Transformation Studio",
-    description: "Transform any video with cutting-edge Hunyuan-Video AI.",
+    title: "MeaTech AI — Image Transformation Studio",
+    description: "Transform any image with cutting-edge AI.",
     type: "website",
   },
 };
