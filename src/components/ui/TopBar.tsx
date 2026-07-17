@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { History } from "lucide-react";
 
 interface TopBarProps {
@@ -22,47 +23,34 @@ export function TopBar({ onHistoryOpen, historyCount = 0, backHref }: TopBarProp
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 1.25rem",
-        background: "var(--color-bg-primary)",
-        borderBottom: "1px solid rgba(2, 195, 154, 0.1)",
+        background: "var(--color-surface)",
+        borderBottom: "1px solid var(--color-border)",
+        boxShadow: "0 1px 3px rgba(15, 23, 42, 0.06)",
       }}
     >
       {/* ── Logo ── */}
       <Link
         href="/"
-        aria-label="MeaTech AI Studio — home"
-        style={{ display: "flex", alignItems: "center", gap: "0.2rem", textDecoration: "none" }}
+        aria-label="MEAtec AI Studio — home"
+        style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none" }}
       >
-        <span style={{ fontWeight: 900, fontSize: "1.2rem", color: "var(--color-logo-teal)", letterSpacing: "-0.05em", lineHeight: 1 }}>
-          M
-        </span>
-        <span
-          aria-hidden
-          style={{
-            display: "inline-block",
-            width: "5px",
-            height: "5px",
-            borderRadius: "50%",
-            background: "var(--color-logo-teal)",
-            flexShrink: 0,
-            marginBottom: "2px",
-          }}
+        <Image
+          src="/logo.svg"
+          alt="MEAtec logo"
+          width={108}
+          height={32}
+          priority
+          style={{ height: "32px", width: "auto" }}
         />
-        <span style={{ fontWeight: 900, fontSize: "1.2rem", color: "var(--color-logo-teal)", letterSpacing: "-0.05em", lineHeight: 1 }}>
-          A
-        </span>
-        <span style={{ fontWeight: 700, fontSize: "1rem", color: "var(--color-text-primary)", letterSpacing: "-0.02em", marginLeft: "3px" }}>
-          tec
-        </span>
         <span
           style={{
             fontSize: "0.58rem",
             fontWeight: 600,
             color: "var(--color-text-muted)",
-            letterSpacing: "0.1em",
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
-            marginLeft: "0.625rem",
             paddingLeft: "0.625rem",
-            borderLeft: "1px solid rgba(2, 195, 154, 0.18)",
+            borderLeft: "1px solid var(--color-border)",
             lineHeight: 1,
           }}
         >
@@ -96,25 +84,27 @@ export function TopBar({ onHistoryOpen, historyCount = 0, backHref }: TopBarProp
               alignItems: "center",
               gap: "0.375rem",
               background: "transparent",
-              border: "1px solid rgba(2, 195, 154, 0.18)",
+              border: "1px solid var(--color-border)",
               borderRadius: "0.5rem",
-              color: "rgba(240, 243, 189, 0.6)",
+              color: "var(--color-text-body)",
               fontSize: "0.8125rem",
               fontWeight: 500,
               padding: "0.3rem 0.75rem",
               cursor: "pointer",
               fontFamily: "inherit",
-              transition: "border-color 0.15s ease, color 0.15s ease",
+              transition: "border-color 0.15s ease, background 0.15s ease, color 0.15s ease",
             }}
             onMouseEnter={e => {
               const b = e.currentTarget;
-              b.style.borderColor = "rgba(2, 195, 154, 0.45)";
-              b.style.color = "var(--color-text-primary)";
+              b.style.borderColor = "var(--color-primary)";
+              b.style.background = "var(--color-surface-hover)";
+              b.style.color = "var(--color-primary)";
             }}
             onMouseLeave={e => {
               const b = e.currentTarget;
-              b.style.borderColor = "rgba(2, 195, 154, 0.18)";
-              b.style.color = "rgba(240, 243, 189, 0.6)";
+              b.style.borderColor = "var(--color-border)";
+              b.style.background = "transparent";
+              b.style.color = "var(--color-text-body)";
             }}
           >
             <History size={14} strokeWidth={2} />
@@ -122,8 +112,8 @@ export function TopBar({ onHistoryOpen, historyCount = 0, backHref }: TopBarProp
             {historyCount > 0 && (
               <span
                 style={{
-                  background: "var(--color-accent-primary)",
-                  color: "var(--color-text-on-accent)",
+                  background: "var(--color-primary)",
+                  color: "#ffffff",
                   fontSize: "0.6rem",
                   fontWeight: 700,
                   borderRadius: "999px",

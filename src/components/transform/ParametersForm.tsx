@@ -128,7 +128,7 @@ export function ParametersForm({ params, onChange }: ParametersFormProps) {
         <textarea
           id="prompt-input"
           className="form-input"
-          placeholder="Describe how you want to transform the video… e.g. 'Convert to cyberpunk neon cityscape at night'"
+          placeholder="Describe how you want to transform the image… e.g. 'Convert to cyberpunk neon cityscape at night'"
           value={params.prompt}
           onChange={(e) => update("prompt", e.target.value)}
           rows={3}
@@ -181,11 +181,11 @@ export function ParametersForm({ params, onChange }: ParametersFormProps) {
           </select>
         </div>
 
-        {/* Video Length */}
+        {/* Generation Mode */}
         <div>
           <label htmlFor="video-length-select" className="form-label" style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
-            <Clock size={14} style={{ color: "var(--color-text-accent)" }} />
-            Output Length
+            <Sliders size={14} style={{ color: "var(--color-text-accent)" }} />
+            Generation Mode
           </label>
           <select
             id="video-length-select"
@@ -195,9 +195,9 @@ export function ParametersForm({ params, onChange }: ParametersFormProps) {
               update("videoLength", e.target.value as TransformationParams["videoLength"])
             }
           >
-            <option value="short" style={{ backgroundColor: "var(--color-bg-secondary)", color: "var(--color-text-primary)" }}>Short (~5s)</option>
-            <option value="medium" style={{ backgroundColor: "var(--color-bg-secondary)", color: "var(--color-text-primary)" }}>Medium (~10s)</option>
-            <option value="long" style={{ backgroundColor: "var(--color-bg-secondary)", color: "var(--color-text-primary)" }}>Long (~20s)</option>
+            <option value="short" style={{ backgroundColor: "var(--color-bg-secondary)", color: "var(--color-text-primary)" }}>Fast Editing</option>
+            <option value="medium" style={{ backgroundColor: "var(--color-bg-secondary)", color: "var(--color-text-primary)" }}>Classic img2img</option>
+            <option value="long" style={{ backgroundColor: "var(--color-bg-secondary)", color: "var(--color-text-primary)" }}>High-Quality Edit</option>
           </select>
         </div>
       </div>

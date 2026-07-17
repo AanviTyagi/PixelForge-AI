@@ -121,16 +121,17 @@ export function ResultPreview({ job, onTransformAnother }: ResultPreviewProps) {
         >
           Transformed Output
         </p>
-        <video
+        <img
           src={job.outputVideoUrl}
-          controls
+          alt="Transformed image"
           style={{
             width: "100%",
             borderRadius: "var(--radius-lg)",
             background: "#000",
             maxHeight: "360px",
+            objectFit: "contain",
           }}
-          id="result-video-player"
+          id="result-image-preview"
         />
 
         {/* Action buttons */}

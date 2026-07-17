@@ -15,7 +15,7 @@ function uploadStream(buffer: Buffer): Promise<any> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        resource_type: "video",
+        resource_type: "auto",
         folder: "meatech/sources",
       },
       (error, result) => {
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     console.log(`Uploading source video from URL to Cloudinary: ${sourceVideoUrl}`);
 
     const uploadResult = await cloudinary.uploader.upload(sourceVideoUrl, {
-      resource_type: "video",
+      resource_type: "auto",
       folder: "meatech/sources",
     });
 

@@ -97,54 +97,18 @@ export function HistoryCard({ job }: HistoryCardProps) {
         onMouseLeave={job.outputVideoUrl ? handleMouseLeave : undefined}
       >
         {job.outputVideoUrl ? (
-          <>
-            <video
-              ref={videoRef}
-              src={job.outputVideoUrl}
-              muted
-              loop
-              playsInline
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: 0,
-                transition: "transform var(--transition-slow)",
-                transform: videoHovered ? "scale(1.05)" : "scale(1)",
-              }}
-            />
-            {/* Play overlay */}
-            {!videoHovered && (
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "rgba(0,0,0,0.28)",
-                  transition: "background var(--transition-base)",
-                }}
-              >
-                <div
-                  style={{
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, rgba(26,110,255,0.85), rgba(0,212,170,0.70))",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backdropFilter: "blur(8px)",
-                    boxShadow: "0 0 20px rgba(26,110,255,0.4)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                  }}
-                >
-                  <Play size={20} fill="white" color="white" style={{ marginLeft: "2px" }} />
-                </div>
-              </div>
-            )}
-          </>
+          <img
+            src={job.outputVideoUrl}
+            alt="Transformed image output"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: 0,
+              transition: "transform var(--transition-slow)",
+              transform: videoHovered ? "scale(1.05)" : "scale(1)",
+            }}
+          />
         ) : (
           /* Placeholder for non-completed jobs */
           <div

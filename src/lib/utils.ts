@@ -28,17 +28,17 @@ export function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
-export const MAX_FILE_SIZE_MB = 500;
+export const ACCEPTED_VIDEO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const MAX_FILE_SIZE_MB = 10;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export function validateVideoFile(file: File): string | null {
   const ext = file.name.split(".").pop()?.toLowerCase();
-  const validExtensions = ["mp4", "mov", "webm"];
+  const validExtensions = ["png", "jpg", "jpeg", "webp"];
   const isValid = ACCEPTED_VIDEO_TYPES.includes(file.type) || (ext && validExtensions.includes(ext));
 
   if (!isValid) {
-    return `Unsupported format. Please upload MP4, MOV, or WebM.`;
+    return `Unsupported format. Please upload PNG, JPG, JPEG, or WebP.`;
   }
   if (file.size > MAX_FILE_SIZE_BYTES) {
     return `File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`;

@@ -122,7 +122,7 @@ export default function HomePage() {
               letterSpacing: "0.02em",
             }}>
               <Zap size={12} />
-              Powered by Hunyuan-Video AI
+              Powered by Google GenAI
             </div>
             <h1 style={{
               fontSize: "clamp(2rem, 5vw, 3.25rem)",
@@ -132,7 +132,7 @@ export default function HomePage() {
               lineHeight: 1.07,
               letterSpacing: "-0.03em",
             }}>
-              AI Video<br />
+              AI Image<br />
               <span style={{ color: "var(--color-accent-primary)" }}>Transformation</span>
             </h1>
             <p style={{
@@ -141,8 +141,8 @@ export default function HomePage() {
               margin: 0,
               lineHeight: 1.6,
             }}>
-              Upload your video, describe the style —<br />
-              Hunyuan-Video does the rest in minutes.
+              Upload your image, describe the style —<br />
+              Google GenAI does the rest in seconds.
             </p>
           </div>
 
@@ -171,7 +171,7 @@ export default function HomePage() {
               </div>
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 0.25rem" }}>
-                  Uploading your video…
+                  Uploading your image…
                 </p>
                 <p style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)", margin: 0 }}>
                   {Math.round(uploadPct)}% complete
@@ -190,7 +190,7 @@ export default function HomePage() {
               className="upload-zone"
               role="button"
               tabIndex={0}
-              aria-label="Upload video. Click or drag and drop."
+              aria-label="Upload image. Click or drag and drop."
               onClick={() => fileInputRef.current?.click()}
               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
               onDragEnter={e => { e.preventDefault(); setDragOver(true); }}
@@ -231,7 +231,7 @@ export default function HomePage() {
 
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: "1.0625rem", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 0.3rem", letterSpacing: "-0.01em" }}>
-                  {dragOver ? "Drop to upload" : "Drop your video here"}
+                  {dragOver ? "Drop to upload" : "Drop your image here"}
                 </p>
                 <p style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", margin: 0 }}>
                   or{" "}
@@ -242,7 +242,7 @@ export default function HomePage() {
               </div>
 
               <div style={{ display: "flex", gap: "0.375rem", flexWrap: "wrap", justifyContent: "center" }}>
-                {["MP4", "MOV", "WebM", "Max 500 MB"].map(f => (
+                {["PNG", "JPG", "JPEG", "Max 10 MB"].map(f => (
                   <span key={f} style={{
                     fontSize: "0.6875rem", fontWeight: 600,
                     background: "rgba(2, 128, 144, 0.18)",
@@ -274,7 +274,7 @@ export default function HomePage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+            accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
             onChange={handleFileChange}
             style={{ display: "none" }}
             aria-hidden
@@ -402,7 +402,7 @@ export default function HomePage() {
                 Generate Transformation
               </button>
               <p style={{ textAlign: "center", fontSize: "0.725rem", color: "var(--color-text-muted)", marginTop: "0.75rem" }}>
-                Processing takes 2–5 minutes via Hunyuan-Video · Results saved automatically
+                Processing takes a few seconds via Gemini · Results saved automatically
               </p>
             </div>
           </div>

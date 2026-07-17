@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 48" fill="none" aria-label="MEAtec logo">
+  <!-- MEA in cyan/teal -->
+  <text
+    x="4"
+    y="38"
+    font-family="'Inter', 'Segoe UI', Arial, sans-serif"
+    font-weight="800"
+    font-size="40"
+    letter-spacing="-1"
+    fill="#06B6D4"
+  >MEA</text>
+  <!-- small dot separator -->
+  <circle cx="122" cy="32" r="4" fill="#06B6D4" />
+  <!-- tec in dark slate -->
+  <text
+    x="130"
+    y="38"
+    font-family="'Inter', 'Segoe UI', Arial, sans-serif"
+    font-weight="700"
+    font-size="36"
+    letter-spacing="-0.5"
+    fill="#0F172A"
+  >tec</text>
+</svg>
